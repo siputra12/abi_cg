@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ABI Generators</title>
+</head>
+<body>
+  <script>
+    function addBaris() {
+      const tabel = document.getElementById('tabel-input');
+      const barisBaru = tabel.insertRow(-1);
+      const selBaru1 = barisBaru.insertCell(0);
+      const selBaru2 = barisBaru.insertCell(1);
+      selBaru1.innerHTML = '<input type="text" id="abi_input" name="input_name[]" placeholder="signature" required>';
+      selBaru2.innerHTML = '<input type="text" id="abi_input" name="input_type[]" placeholder="bytes" required>';
+    }
+  </script>
+  <div style="display: flex">
+    <div style="width: 50%;">
+      <h1>Form</h1>
+      <form id="myForm">
+        <label for="abi_class">
+          <h3>Function Name</h3>
+          <input type="text" id="abi_class" placeholder="balanceOf"><br>
+        </label>
+        <label for="abi_class">
+          <h3>Additional Value</h3>
+          <input type="text" id="abi_additional" value="constant" readonly>
+          <select id="constant">
+            <option value="true">True</option>
+            <option value="false" selected>False</option>
+          </select>
+          <br>
+          <input type="text" id="abi_additional" value="payable" readonly>
+          <select id="payable">
+            <option value="true">True</option>
+            <option value="false" selected>False</option>
+          </select>
+          <br>
+          <input type="text" id="abi_additional" value="stateMutability" readonly> <input type="text" id="abi_additional" name="stateMutability" value="nonpayable" required><br>
+        </label>
+        <h3>Inputs Value</h3>
+        <table id="tabel-input">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" id="abi_input" name="input_name[]" placeholder="signature" required></td>
+              <td><input type="text" id="abi_input" name="input_type[]" placeholder="bytes" required></td>
+              <td><button type="button" onclick="addBaris()">Add Table</button></td>
+            </tr>
+          </tbody>
+        </table><br>
+        <button type="submit">Submit</button> <button type="button" onclick="location.reload();">Reset</button>
+      </form>
+    </div>
+    <div style="width: 50%;">
+      <h1>Hasil:</h1>
+      <textarea id="result" style="resize: none;" cols="50" rows="40">{}</textarea>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      var res = "";
+      $("#myForm").submit(function(event) {
+        event.preventDefault();
+        var cName = $("#abi_class").val();
+        var iName = $('input[name="input_name[]"]').map(function() {
+            return $(this).val();
+        });
+        
+        var iType = $('input[name="input_type[]"]').map(function() {
+            return $(this).val();
+        });
+        var con = Boolean($('#constant').val().replaceAll("false", ""));
+        var pa = Boolean($('#payable').val().replaceAll("false", ""));
+        var sm = $('input[name="stateMutability"]').val();
+        var obj = {constant: con, inputs: [], name: "", outputs: [], payable: pa, stateMutability: sm, type: "function"};
+        obj["name"] = cName;
+        for(let i = 0; i < iName.length; i++) {
+          obj["inputs"][i] = {name: iName[i], type: iType[i]};
+        }
+        res += JSON.stringify([obj], null, 2).replaceAll("false", "False").replaceAll("true", "True");
+        document.getElementById("result").textContent = res.replaceAll("][", ",");
+        $("#myForm")[0].reset();
+      });
+    });
+  </script>
+</body>
+</html>
