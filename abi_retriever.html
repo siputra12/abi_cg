@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ABI Retriever</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <center><h1>ABI Contract Function Retriever</h1></center><br><br>
+  <div style="display: flex">
+    <div style="width: 50%;">
+      <h1>Transaction Hash (tx):</h1>
+      <form id="getFuncForm">
+        <label for="txInput">https://bscscan.com/tx/</label>
+        <input type="text" id="txInput" name="tx">
+        <input type="submit" value="Get Function">
+      </form>
+    </div>
+    <div style="width: 50%;">
+      <h1>Result:</h1>
+      <textarea id="result" style="resize: none;" cols="50" rows="40">{}</textarea>
+    </div>
+  </div>
+
+    <script>
+        // Handle form submission
+        $('#getFuncForm').submit(function(event) {
+            event.preventDefault();
+            var tx = $('#txInput').val();
+            if (tx !== '') {
+                getFunction(tx);
+                get_func(tx);
+            }
+        });
+
+        // Function to make AJAX request
+        function getFunction(tx) {
+            var res = "";
+            $.ajax({
+                url: 'https://woidann.my.id/bsc/get_func.php', // Replace with the URL to your PHP file
+                type: 'GET',
+                data: {tx: tx},
+                dataType: 'jsonp',
+                success: function(response) {
+                    if (response.success) {
+                        var result = response.result;
+                        var cName = result.func;
+                        var obj = {constant: false, inputs: [], name: "", outputs: [], payable: false, stateMutability: "nonpayable", type: "function"};
+                        obj["name"] = cName;
+                        if('data' in result){
+                          var raw = result.data;
+                          for(let i = 0; i < raw.length; i++) {
+                            var data = raw[i]
+                            obj["inputs"][i] = {name: data.p, type: data.t};
+                          }
+                        }
+                        res += JSON.stringify([obj], null, 2).replaceAll("false", "False").replaceAll("true", "True");
+                        document.getElementById("result").textContent = res.replaceAll("][", ",");
+                        $('#result').html('<p>Function Name: ' + result.fName +
+                            '</p><p>Parameter 1: ' + result[0].p1 + ', Type 1: ' + result[0].t1 +
+                            '</p><p>Parameter 2: ' + result[1].p2 + ', Type 2: ' + result[1].t2 + '</p>');
+                    } else {
+                        $('#result').html('<p>Error: ' + response.error + '</p>');
+                    }
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    $('#result').html('<p>Error: ' + errorThrown + '</p>');
+                }
+            });
+        }
+
+        $('#result').click(function() {
+            var copyText = document.getElementById("result");
+            copyText.select();
+            document.execCommand("copy");
+        });
+
+    </script>
+</body>
+</html>
