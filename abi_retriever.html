@@ -28,7 +28,6 @@
             var tx = $('#txInput').val();
             if (tx !== '') {
                 getFunction(tx);
-                get_func(tx);
             }
         });
 
@@ -55,9 +54,6 @@
                         }
                         res += JSON.stringify([obj], null, 2).replaceAll("false", "False").replaceAll("true", "True");
                         document.getElementById("result").textContent = res.replaceAll("][", ",");
-                        $('#result').html('<p>Function Name: ' + result.fName +
-                            '</p><p>Parameter 1: ' + result[0].p1 + ', Type 1: ' + result[0].t1 +
-                            '</p><p>Parameter 2: ' + result[1].p2 + ', Type 2: ' + result[1].t2 + '</p>');
                     } else {
                         $('#result').html('<p>Error: ' + response.error + '</p>');
                     }
